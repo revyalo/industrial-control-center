@@ -1,0 +1,81 @@
+@if (points().length) {
+  <div class="chart" [style.--series-color]="config().color">
+    <svg
+      viewBox="0 0 800 200"
+      role="img"
+      [attr.aria-label]="
+        config().label +
+        ' over time, ' +
+        points().length +
+        ' simulated readings. Use the reading inspector below for exact values.'
+      "
+      (pointermove)="inspect($event)"
+      (pointerleave)="hovered.set(null)"
+    >
+      <defs>
+        <linearGradient [id]="gradientId" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="currentColor" stop-opacity=".16" />
+          <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      @for (t of yTicks(); track t) {
+        <line
+          x1="48"
+          x2="768"
+          [attr.y1]="168 - t * 144"
+          [attr.y2]="168 - t * 144"
+          class="grid-line"
+        />
+        <text x="36" [attr.y]="172 - t * 144" text-anchor="end">{{ tickLabel(t) }}</text>
+      }
+      @for (t of xTicks; track t) {
+        <text [attr.x]="48 + t * 720" y="193" text-anchor="middle">
+          {{ start() + t * (end() - start()) | date: 'HH:mm:ss' : 'UTC' }}
+        </text>
+      }
+      @if (metric() === 'temperature') {
+        <line
+          x1="48"
+          x2="768"
+          [attr.y1]="thresholdY()"
+          [attr.y2]="thresholdY()"
+          class="threshold"
+        />
+        <text x="767" [attr.y]="thresholdY() - 6" text-anchor="end" class="threshold-label">
+          LIMIT {{ threshold() }}°
+        </text>
+      }
+      <path class="series-fill" [attr.d]="fill()" [attr.fill]="'url(#' + gradientId + ')'" />
+      <path class="series-line" [attr.d]="path()" fill="none" />
+      @if (active(); as p) {
+        <line [attr.x1]="x(p)" [attr.x2]="x(p)" y1="24" y2="168" class="crosshair" />
+        <circle [attr.cx]="x(p)" [attr.cy]="y(p)" r="4" class="point" />
+      }
+    </svg>
+    @if (active(); as p) {
+      <div class="chart-tooltip" role="status">
+        <time>{{ p.timestamp | date: 'HH:mm:ss' : 'UTC' }}</time
+        ><strong>{{ value(p) }}</strong>
+      </div>
+    }
+    <div class="chart-access">
+      <label [attr.for]="gradientId + '-inspect'"
+        >Inspect readings <span>{{ points().length }} samples</span></label
+      ><input
+        [id]="gradientId + '-inspect'"
+        type="range"
+        min="0"
+        [max]="points().length - 1"
+        [value]="hovered() ?? points().length - 1"
+        (input)="hovered.set(+$any($event.target).value)"
+        (blur)="hovered.set(null)"
+        [attr.aria-valuetext]="active() ? value(active()!) : 'Latest sample'"
+      />
+    </div>
+  </div>
+} @else {
+  <div class="empty-state">
+    <strong>No readings in this window</strong>
+    <p>Start the machine or choose a longer time range.</p>
+  </div>
+}

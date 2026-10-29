@@ -1,0 +1,118 @@
+.panel-header {
+  padding-block: 15px;
+}
+.panel-header .tag {
+  font-size: 8px;
+  margin-left: 8px;
+}
+.chart-actions {
+  display: flex;
+  gap: 7px;
+}
+.chart-actions .icon-button {
+  width: 27px;
+  height: 27px;
+}
+.chart-actions .icon-button:disabled {
+  opacity: 0.3;
+}
+.chart-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 17px 22px 10px;
+  gap: 12px;
+}
+.metric-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.metric-tabs button {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 10px;
+  padding: 6px 9px;
+  border-radius: 4px;
+}
+.metric-tabs button.active {
+  background: var(--surface-3);
+  color: var(--text);
+}
+.metric-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+.time-select select {
+  font: 9px var(--mono);
+  padding: 6px 8px;
+  min-width: 120px;
+  background: transparent;
+}
+.chart-summary {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 6px 30px 0;
+}
+.chart-value {
+  display: flex;
+  gap: 7px;
+  align-items: baseline;
+}
+.chart-value strong {
+  font: 25px var(--mono);
+  letter-spacing: -1px;
+}
+.chart-value > span {
+  font: 10px var(--mono);
+  color: var(--muted);
+}
+.chart-description {
+  font-size: 9px;
+  color: var(--muted);
+}
+.chart-signal {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font: 7px var(--mono);
+  letter-spacing: 1px;
+  color: var(--green);
+  margin-left: auto;
+}
+.chart-signal .dot {
+  width: 4px;
+  height: 4px;
+}
+.chart-signal.paused {
+  color: var(--amber);
+}
+@media (max-width: 700px) {
+  .chart-toolbar {
+    padding: 15px 13px 8px;
+    flex-wrap: wrap;
+  }
+  .metric-tabs {
+    gap: 0;
+  }
+  .metric-tabs button {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+  .chart-summary {
+    padding: 8px 22px 0;
+    gap: 12px;
+  }
+  .chart-description {
+    display: none;
+  }
+  .time-select {
+    margin-left: auto;
+  }
+}

@@ -1,0 +1,133 @@
+h1 {
+  margin-top: 9px;
+}
+.panel-header .tag {
+  font-size: 8px;
+  margin-left: 8px;
+}
+.log-note {
+  font: 9px var(--mono);
+  color: var(--subtle);
+}
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.alert-item:last-child {
+  border: 0;
+}
+.event-icon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.event-icon.info {
+  color: var(--blue);
+}
+.event-icon.warning {
+  color: var(--amber);
+}
+.event-icon.error {
+  color: var(--red);
+}
+.event-body {
+  flex: 1;
+  min-width: 0;
+}
+.event-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.event-title h3 {
+  font-size: 14px;
+}
+.event-severity {
+  font: 8px var(--mono);
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+.event-severity.warning {
+  color: var(--amber);
+}
+.event-severity.error {
+  color: var(--red);
+}
+.event-body p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.event-meta {
+  font: 8px var(--mono);
+  display: flex;
+  gap: 15px;
+  color: var(--subtle);
+  margin-top: 12px;
+}
+.acknowledged {
+  font: 9px var(--mono);
+  color: var(--muted);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.reviewed .event-icon {
+  opacity: 0.6;
+}
+.empty-icon {
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  color: var(--accent);
+}
+.empty-state .text-link {
+  margin-top: 18px;
+}
+.events-note {
+  font-size: 10px;
+  color: var(--subtle);
+  margin-top: 17px;
+}
+@media (max-width: 650px) {
+  .alert-item {
+    padding: 20px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .event-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .event-body {
+    flex-basis: calc(100% - 50px);
+  }
+  .alert-item > .button,
+  .acknowledged {
+    margin-left: 42px;
+  }
+  .event-meta {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .event-meta > span {
+    width: 100%;
+  }
+  .log-note {
+    display: none;
+  }
+  .event-title {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

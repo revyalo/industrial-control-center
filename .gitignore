@@ -1,0 +1,34 @@
+# Dependencies and generated build/cache output
+/node_modules/
+/dist/
+/out-tsc/
+/.angular/
+/coverage/
+
+# Test reports and local scratch files
+/test-results/
+/playwright-report/
+/blob-report/
+/tmp/
+/artifacts/
+*.log
+*.tsbuildinfo
+*.zip
+*.tar
+*.tar.gz
+
+# Local credentials, environment overrides and private reference material
+.env
+.env.*
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.pdf
+
+# Local editor and operating-system state
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db

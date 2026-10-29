@@ -1,0 +1,156 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">YOUR WORKSPACE</p>
+    <h1>System settings<span class="accent">.</span></h1>
+    <p class="subtitle">Tune the simulation and make this control room your own.</p>
+  </div>
+  <span class="badge">LOCAL PREFERENCES</span>
+</div>
+<div class="settings-grid">
+  <section class="panel">
+    <h2>Appearance</h2>
+    <p class="description">Visual preferences are stored in this browser.</p>
+    <p class="section-label">COLOR THEME</p>
+    <div class="theme-options" role="group" aria-label="Color theme">
+      <button
+        [class.selected]="prefs.theme() === 'dark'"
+        [attr.aria-pressed]="prefs.theme() === 'dark'"
+        (click)="prefs.setTheme('dark')"
+      >
+        <span class="theme-preview dark-preview"><i></i><i></i><i></i></span
+        ><span><app-icon name="moon" [size]="14" />Dark room</span></button
+      ><button
+        [class.selected]="prefs.theme() === 'light'"
+        [attr.aria-pressed]="prefs.theme() === 'light'"
+        (click)="prefs.setTheme('light')"
+      >
+        <span class="theme-preview light-preview"><i></i><i></i><i></i></span
+        ><span><app-icon name="sun" [size]="14" />Day shift</span>
+      </button>
+    </div>
+    <div class="switch-row">
+      <div>
+        <label for="reduce-motion">Reduce motion</label
+        ><small>Keep the motor visual still. System preferences are also respected.</small>
+      </div>
+      <input
+        type="checkbox"
+        id="reduce-motion"
+        [checked]="prefs.reducedMotion()"
+        (change)="prefs.setMotion($any($event.target).checked)"
+      />
+    </div>
+    <div class="switch-row">
+      <div>
+        <label for="compact-tables">Compact tables</label
+        ><small>Show more telemetry rows with less spacing.</small>
+      </div>
+      <input
+        type="checkbox"
+        id="compact-tables"
+        [checked]="prefs.compact()"
+        (change)="prefs.setCompact($any($event.target).checked)"
+      />
+    </div>
+    @if (prefs.storageError()) {
+      <p class="error-message" role="status">{{ prefs.storageError() }}</p>
+    }
+    <div class="storage-note">
+      <app-icon name="info" [size]="16" />
+      <p>
+        Machine state, alerts and history stay in memory for this session. Only preferences persist
+        after a reload.
+      </p>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Simulation parameters</h2>
+    <p class="description">
+      Changes apply on the next 2-second cycle. Seed 42 keeps the model reproducible.
+    </p>
+    <form #configForm="ngForm" (ngSubmit)="save()">
+      <div class="parameter-grid">
+        <label class="field"
+          >Ambient temperature (°C)<input
+            type="number"
+            name="ambient"
+            aria-label="Ambient temperature (°C)"
+            [(ngModel)]="draft.ambientTemperature"
+            min="10"
+            max="40"
+            required
+          /><span class="field-hint">10–40 °C</span></label
+        ><label class="field"
+          >Warning threshold (°C)<input
+            type="number"
+            name="warning"
+            aria-label="Warning threshold (°C)"
+            [(ngModel)]="draft.warningTemperature"
+            min="60"
+            max="90"
+            required
+          /><span class="field-hint">60–90 °C · default 80</span></label
+        ><label class="field"
+          >Safety shutdown (°C)<input
+            type="number"
+            name="shutdown"
+            aria-label="Safety shutdown (°C)"
+            [(ngModel)]="draft.shutdownTemperature"
+            min="70"
+            max="120"
+            required
+          /><span class="field-hint">At least 10 °C above warning</span></label
+        ><label class="field"
+          >Speed ramp (RPM/s)<input
+            type="number"
+            name="ramp"
+            aria-label="Speed ramp (RPM/s)"
+            [(ngModel)]="draft.rampRate"
+            min="100"
+            max="600"
+            required
+          /><span class="field-hint">100–600 RPM/s</span></label
+        ><label class="field"
+          >Fluctuation multiplier<input
+            type="number"
+            name="fluctuation"
+            aria-label="Fluctuation multiplier"
+            [(ngModel)]="draft.fluctuation"
+            min="0"
+            max="3"
+            step="0.1"
+            required
+          /><span class="field-hint">0–3 · 0 disables random noise</span></label
+        >
+      </div>
+      @if (error()) {
+        <p role="alert" class="error-message">{{ error() }}</p>
+      }
+      <div class="form-actions">
+        <button type="button" class="button" (click)="defaults()">Load defaults</button
+        ><button type="submit" class="button primary" [disabled]="configForm.invalid">
+          <app-icon name="check" [size]="14" />Save parameters
+        </button>
+      </div>
+    </form>
+  </section>
+  <section class="panel session-panel">
+    <div>
+      <h2>Session data</h2>
+      <p class="description">
+        Each machine keeps up to 300 samples. Clearing history preserves the current machine state.
+      </p>
+    </div>
+    <button class="button danger" (click)="clearing.set(true)">
+      <app-icon name="reset" [size]="14" />Clear telemetry history
+    </button>
+  </section>
+</div>
+<app-confirm-dialog
+  [open]="clearing()"
+  title="Clear all telemetry history?"
+  message="This removes the buffered readings for all four machines. The simulation will continue and new readings will be collected. This action cannot be undone."
+  actionLabel="Clear history"
+  (closed)="clearing.set(false)"
+  (confirmed)="fleet.clearHistory()"
+/>

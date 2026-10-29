@@ -1,0 +1,247 @@
+<div class="page-heading">
+  <div>
+    <div class="heading-kicker">
+      <span class="eyebrow">PLANT OPERATIONS</span><span class="heading-line"></span>
+    </div>
+    <h1>Operations overview<span class="title-dot">.</span></h1>
+    <p class="subtitle">Your production floor, in focus. Monitor, inspect and take control.</p>
+  </div>
+  <div class="heading-actions">
+    <span class="date-label">{{ fleet.state().timestamp | date: 'dd MMM yyyy' }}</span
+    ><a class="button" routerLink="/telemetry"
+      ><app-icon name="chart" [size]="14" />View telemetry<app-icon name="arrow" [size]="13"
+    /></a>
+  </div>
+</div>
+<div class="kpi-grid">
+  <article class="kpi">
+    <div class="kpi-label">Active machines<app-icon name="machine" [size]="16" /></div>
+    <div class="kpi-number">{{ fleet.activeCount() }}<span>/ 04</span></div>
+    <div class="kpi-footer">
+      <span class="dot green"></span
+      ><span>{{ fleet.machines().length - fleet.activeCount() }} in standby</span
+      ><span class="kpi-tag">FLEET STATUS</span>
+    </div>
+    <div class="kpi-meter">
+      @for (m of fleet.machines(); track m.id) {
+        <i [class.filled]="m.status === 'RUNNING' || m.status === 'WARNING'"></i>
+      }
+    </div>
+  </article>
+  <article class="kpi">
+    <div class="kpi-label">Total power draw<app-icon name="bolt" [size]="16" /></div>
+    <div class="kpi-number">{{ fleet.totalPower() | number: '1.2-2' }}<span>kW</span></div>
+    <div class="kpi-footer">
+      <span class="muted">Combined active load</span
+      ><svg
+        class="tiny-spark"
+        viewBox="0 0 90 24"
+        role="img"
+        aria-label="Recent simulated fleet power trend"
+      >
+        <path [attr.d]="powerTrend()" fill="none" stroke="currentColor" stroke-width="1.4" />
+      </svg>
+    </div>
+    <div class="kpi-baseline"></div>
+  </article>
+  <article class="kpi">
+    <div class="kpi-label">Average temperature<app-icon name="temp" [size]="16" /></div>
+    <div class="kpi-number">{{ averageTemp() | number: '1.1-1' }}<span>°C</span></div>
+    <div class="kpi-footer">
+      <span
+        class="dot"
+        [class.amber]="averageTemp() > fleet.preferences.config().warningTemperature"
+        [class.green]="averageTemp() <= fleet.preferences.config().warningTemperature"
+      ></span
+      ><span>{{
+        averageTemp() > fleet.preferences.config().warningTemperature
+          ? 'Above warning threshold'
+          : 'Within operating range'
+      }}</span>
+    </div>
+    <div class="temperature-meter"><span [style.width.%]="averageTemp()"></span></div>
+  </article>
+  <article class="kpi">
+    <div class="kpi-label">Open alerts<app-icon name="bell" [size]="16" /></div>
+    <div class="kpi-number" [class.amber]="fleet.activeAlerts().length">
+      {{ fleet.activeAlerts().length | number: '2.0-0'
+      }}<span class="alert-label">{{
+        fleet.activeAlerts().length ? 'need attention' : 'all clear'
+      }}</span>
+    </div>
+    <div class="kpi-footer">
+      <span
+        class="dot"
+        [class.green]="!fleet.activeAlerts().length"
+        [class.amber]="!!fleet.activeAlerts().length"
+      ></span
+      ><span>Unacknowledged events</span
+      ><a routerLink="/alerts" class="kpi-arrow" aria-label="View alerts"
+        ><app-icon name="arrow" [size]="16"
+      /></a>
+    </div>
+    <div class="kpi-baseline"></div>
+  </article>
+</div>
+<div class="monitor-grid">
+  <section class="panel monitor-panel">
+    <div class="panel-header">
+      <h2><span class="dot accent"></span>Machine monitor</h2>
+      <span class="badge live"><span class="dot"></span>LIVE</span>
+    </div>
+    <div class="machine-identity">
+      <div>
+        <span class="machine-id">{{ fleet.selected().id }}</span
+        ><strong
+          >{{ fleet.selected().name }} <span>{{ fleet.selected().type }}</span></strong
+        >
+      </div>
+      <app-status-badge
+        [status]="fleet.selected().status"
+        [recovering]="fleet.selected().recovering"
+      />
+    </div>
+    <app-motor-visual
+      [machine]="fleet.selected()"
+      [threshold]="fleet.preferences.config().warningTemperature"
+    />
+    <div class="machine-vitals">
+      <div>
+        <span class="vital-icon"><app-icon name="speed" [size]="17" /></span>
+        <div>
+          <small>Actual speed</small
+          ><strong>{{ fleet.selected().rpm | number: '1.0-0' }} <em>RPM</em></strong>
+        </div>
+      </div>
+      <div>
+        <span class="vital-icon"><app-icon name="bolt" [size]="17" /></span>
+        <div>
+          <small>Power draw</small
+          ><strong>{{ fleet.selected().power | number: '1.2-2' }} <em>kW</em></strong>
+        </div>
+      </div>
+      <div>
+        <span class="vital-icon"><app-icon name="clock" [size]="17" /></span>
+        <div>
+          <small>Simulated runtime</small><strong>{{ uptime() }} <em>MIN</em></strong>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="panel control-panel">
+    <div class="panel-header">
+      <h2>Control station</h2>
+      <app-icon name="settings" [size]="15" />
+    </div>
+    <div class="select-machine">
+      <label for="active-machine">SELECT MACHINE</label
+      ><select
+        id="active-machine"
+        [value]="fleet.selectedId()"
+        (change)="fleet.select($any($event.target).value)"
+      >
+        @for (m of fleet.machines(); track m.id) {
+          <option [value]="m.id">{{ m.id }} — {{ m.name }}</option>
+        }
+      </select>
+    </div>
+    <app-machine-controls [machine]="fleet.selected()" (command)="fleet.command($event)" />
+    <div class="local-notice">
+      <app-icon name="info" [size]="13" />Controls affect simulated machinery only.
+    </div>
+  </section>
+</div>
+<div class="dashboard-telemetry"><app-telemetry-panel /></div>
+<div class="secondary-grid">
+  <section class="panel fleet-panel">
+    <div class="panel-header">
+      <h2>Machine fleet<span class="tag">04 UNITS</span></h2>
+      <a routerLink="/machines" class="text-link"
+        >Manage fleet<app-icon name="arrow" [size]="13"
+      /></a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">
+          Current state of all simulated machines
+        </caption>
+        <thead>
+          <tr>
+            <th>Machine</th>
+            <th>Status</th>
+            <th>Temp.</th>
+            <th>Speed</th>
+            <th><span class="sr-only">Select</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of fleet.machines(); track m.id) {
+            <tr [class.selected-row]="m.id === fleet.selectedId()">
+              <td>
+                <div class="machine-cell">
+                  <span class="table-icon"><app-icon name="machine" [size]="16" /></span>
+                  <div>
+                    <strong>{{ m.name }}</strong
+                    ><small>{{ m.id }} · {{ m.type }}</small>
+                  </div>
+                </div>
+              </td>
+              <td><app-status-badge [status]="m.status" /></td>
+              <td
+                class="monospace"
+                [class.red]="m.temperature > fleet.preferences.config().warningTemperature"
+              >
+                {{ m.temperature | number: '1.1-1' }}°
+              </td>
+              <td class="monospace">
+                {{ m.rpm | number: '1.0-0' }}<small class="muted"> rpm</small>
+              </td>
+              <td>
+                <button
+                  class="table-select"
+                  [attr.aria-label]="'Select ' + m.name"
+                  [attr.aria-pressed]="m.id === fleet.selectedId()"
+                  (click)="fleet.select(m.id)"
+                >
+                  <app-icon [name]="m.id === fleet.selectedId() ? 'check' : 'arrow'" [size]="14" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="panel activity-panel">
+    <div class="panel-header">
+      <h2>Activity feed</h2>
+      <a routerLink="/alerts" class="text-link">View all<app-icon name="arrow" [size]="13" /></a>
+    </div>
+    <div class="activity-content">
+      @for (a of recent(); track a.id) {
+        <article class="activity-item">
+          <span
+            class="activity-icon"
+            [class.red]="a.severity === 'error'"
+            [class.amber]="a.severity === 'warning'"
+            ><app-icon [name]="a.severity === 'info' ? 'check' : 'warning'" [size]="14"
+          /></span>
+          <div>
+            <h3>{{ a.title }}</h3>
+            <p>
+              {{ a.machineName }} <span>· {{ a.machineId }}</span>
+            </p>
+            <time>{{ a.timestamp | date: 'HH:mm:ss' : 'UTC' }}</time>
+          </div>
+        </article>
+      } @empty {
+        <div class="all-clear">
+          <span class="clear-icon"><app-icon name="check" [size]="23" /></span>
+          <h3>A clear view ahead.</h3>
+          <p>No events in this session.<br />Machine actions will appear here.</p>
+          <span class="tag">SYSTEM NOMINAL</span>
+        </div>
+      }
+    </div>
+  </section>
+</div>

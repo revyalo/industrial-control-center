@@ -1,0 +1,104 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ASSET MANAGEMENT</p>
+    <h1>Your machine fleet<span class="accent">.</span></h1>
+    <p class="subtitle">Four machines. One connected workspace. All simulated locally.</p>
+  </div>
+  <span class="badge live"><span class="dot"></span>{{ fleet.activeCount() }} OF 4 ACTIVE</span>
+</div>
+<div class="filter-bar">
+  <label
+    >Operating state<select
+      aria-label="Filter machine state"
+      [value]="filter()"
+      (change)="filter.set($any($event.target).value)"
+    >
+      <option value="all">All machines</option>
+      <option value="RUNNING">Running</option>
+      <option value="STOPPED">Stopped</option>
+      <option value="WARNING">Warning</option>
+      <option value="ERROR">Error</option>
+    </select></label
+  ><span class="result-count">{{ visible().length }} results</span>
+</div>
+<div class="machine-grid">
+  @for (m of visible(); track m.id) {
+    <article class="panel machine-card">
+      <div class="card-heading">
+        <span class="tag">{{ m.id }}</span
+        ><app-status-badge [status]="m.status" [recovering]="m.recovering" />
+      </div>
+      <div class="asset-heading">
+        <span class="asset-symbol" [class.active]="m.rpm > 0"
+          ><app-icon name="machine" [size]="38"
+        /></span>
+        <div>
+          <h2>{{ m.name }}</h2>
+          <p>{{ m.type }}</p>
+          <small>{{ m.location }}</small>
+        </div>
+      </div>
+      <div class="asset-metrics">
+        <div>
+          <span>Temperature</span
+          ><strong [class.red]="m.temperature > fleet.preferences.config().warningTemperature"
+            >{{ m.temperature | number: '1.1-1' }} <em>°C</em></strong
+          >
+          <div class="asset-bar">
+            <i
+              [style.width.%]="(m.temperature / 120) * 100"
+              [class.hot]="m.temperature > fleet.preferences.config().warningTemperature"
+            ></i>
+          </div>
+        </div>
+        <div>
+          <span>Motor speed</span><strong>{{ m.rpm | number: '1.0-0' }} <em>RPM</em></strong>
+          <div class="asset-bar blue"><i [style.width.%]="(m.rpm / 3000) * 100"></i></div>
+        </div>
+        <div>
+          <span>Power draw</span><strong>{{ m.power | number: '1.2-2' }} <em>kW</em></strong>
+          <p>Target: {{ m.targetRpm }} RPM</p>
+        </div>
+      </div>
+      <div class="asset-footer">
+        <button class="button small" (click)="open(m.id)">
+          Open monitor<app-icon name="arrow" [size]="13" />
+        </button>
+        @if (m.status === 'RUNNING' || m.status === 'WARNING') {
+          <button
+            class="text-link"
+            [attr.aria-label]="'Stop ' + m.name"
+            (click)="fleet.command({ type: 'stop' }, m.id)"
+          >
+            <app-icon name="stop" [size]="12" />Stop machine
+          </button>
+        } @else if (m.status === 'ERROR' || m.recovering) {
+          <button
+            class="text-link"
+            [disabled]="m.recovering"
+            [attr.aria-label]="'Reset ' + m.name"
+            (click)="fleet.command({ type: 'reset' }, m.id)"
+          >
+            <app-icon name="reset" [size]="12" />{{
+              m.recovering ? 'Cooling down' : 'Reset machine'
+            }}
+          </button>
+        } @else {
+          <button
+            class="text-link"
+            [attr.aria-label]="'Start ' + m.name"
+            (click)="fleet.command({ type: 'start' }, m.id)"
+          >
+            <app-icon name="play" [size]="12" />Start machine
+          </button>
+        }
+      </div>
+    </article>
+  } @empty {
+    <div class="panel empty-state">
+      <strong>No machines in this state</strong>
+      <p>Choose a different operating state to see more machines.</p>
+      <button class="button small" (click)="filter.set('all')">Show all machines</button>
+    </div>
+  }
+</div>

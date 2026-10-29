@@ -1,0 +1,120 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+<aside class="sidebar" [class.mobile-open]="menuOpen()" aria-label="Application sidebar">
+  <a
+    class="brand"
+    routerLink="/dashboard"
+    (click)="menuOpen.set(false)"
+    aria-label="Industrial Control Center home"
+    ><span class="brand-symbol"><i></i><i></i><i></i></span
+    ><span
+      >INDUSTRIAL<span class="brand-bottom"
+        >CONTROL CENTER<span class="brand-period">01</span></span
+      ></span
+    ></a
+  >
+  <div class="workspace">
+    <span class="workspace-icon"><app-icon name="machine" [size]="17" /></span>
+    <div><strong>Manufacturing plant</strong><small>Browser simulation</small></div>
+    <span class="dot"></span>
+  </div>
+  <p class="nav-label">WORKSPACE</p>
+  <nav aria-label="Primary navigation">
+    @for (link of links; track link.path) {
+      <a [routerLink]="link.path" routerLinkActive="active" (click)="menuOpen.set(false)"
+        ><app-icon [name]="link.icon" [size]="17" /><span>{{ link.label }}</span>
+        @if (link.path === '/alerts' && fleet.activeAlerts().length) {
+          <span class="nav-count">{{ fleet.activeAlerts().length }}</span>
+        }
+        @if (link.path === '/machines') {
+          <span class="nav-number">04</span>
+        }
+      </a>
+    }
+  </nav>
+  <div class="sidebar-bottom">
+    <p class="nav-label">SYSTEM</p>
+    <nav aria-label="System navigation">
+      <a routerLink="/settings" routerLinkActive="active" (click)="menuOpen.set(false)"
+        ><app-icon name="settings" [size]="17" /><span>Settings</span></a
+      ><a routerLink="/foundation" routerLinkActive="active" (click)="menuOpen.set(false)"
+        ><app-icon name="code" [size]="17" /><span>Reference exercise</span
+        ><span class="reference-mark">↗</span></a
+      >
+    </nav>
+    <div class="simulation-card">
+      <span class="dot"></span><strong>Simulation environment</strong>
+      <p>All systems run locally.<br />No physical sensors connected.</p>
+      <span class="version">ENGINE v1.0 <span>● DETERMINISTIC</span></span>
+    </div>
+    <div class="sidebar-footer">
+      <span class="avatar">OP</span>
+      <div><strong>Local operator</strong><small>Frontend demo</small></div>
+      <span class="online-dot"></span>
+    </div>
+  </div>
+</aside>
+@if (menuOpen()) {
+  <button
+    class="menu-backdrop"
+    aria-label="Close navigation"
+    (click)="menuOpen.set(false)"
+  ></button>
+}
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button
+        class="icon-button menu-button"
+        aria-label="Toggle navigation"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="menuOpen.set(!menuOpen())"
+      >
+        <app-icon name="menu" /></button
+      ><span class="breadcrumb"
+        >Workspace <span>/</span> <strong>Industrial operations</strong></span
+      >
+    </div>
+    <div class="topbar-right">
+      <span class="system-state"><span class="dot"></span> Simulation online</span
+      ><span class="header-divider"></span
+      ><span class="header-time"
+        >{{ fleet.state().timestamp | date: 'HH:mm:ss' : 'UTC' }} <span>UTC</span></span
+      ><button
+        class="icon-button tooltip"
+        [attr.aria-label]="
+          preferences.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+        "
+        [attr.data-tooltip]="preferences.theme() === 'dark' ? 'Light theme' : 'Dark theme'"
+        (click)="preferences.toggleTheme()"
+      >
+        <app-icon [name]="preferences.theme() === 'dark' ? 'sun' : 'moon'" [size]="16" /></button
+      ><a
+        class="icon-button notifications"
+        routerLink="/alerts"
+        [attr.aria-label]="'Alerts, ' + fleet.activeAlerts().length + ' unacknowledged'"
+        ><app-icon name="bell" [size]="17" />
+        @if (fleet.activeAlerts().length) {
+          <span></span>
+        }
+      </a>
+    </div>
+  </header>
+  <main id="main-content" tabindex="-1">
+    <div class="content"><router-outlet /></div>
+  </main>
+  <footer class="app-footer">
+    <span><span class="dot"></span> SIMULATED DATA ONLY</span
+    ><span
+      >Industrial Control Center <span class="footer-separator">/</span> Built for the
+      browser.</span
+    ><span>2s refresh cycle <span class="footer-separator">·</span> Seed 42</span>
+  </footer>
+</div>
+<div class="toast-region" role="status" aria-live="polite">
+  @if (fleet.notice()) {
+    <div class="toast"><app-icon name="check" [size]="16" />{{ fleet.notice() }}</div>
+  }
+</div>
+@if (fleet.error()) {
+  <div class="global-error" role="alert">{{ fleet.error() }}</div>
+}

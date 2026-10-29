@@ -1,0 +1,76 @@
+<section class="panel telemetry-panel">
+  <div class="panel-header">
+    <h2>
+      Live telemetry <span class="tag">{{ fleet.selectedId() }}</span>
+    </h2>
+    <div class="chart-actions">
+      <button
+        class="icon-button tooltip"
+        [attr.aria-label]="snapshot() ? 'Resume chart' : 'Pause chart'"
+        [attr.data-tooltip]="snapshot() ? 'Resume chart' : 'Pause chart'"
+        [attr.aria-pressed]="!!snapshot()"
+        (click)="togglePause()"
+      >
+        <app-icon [name]="snapshot() ? 'play' : 'pause'" [size]="13" /></button
+      ><button
+        class="icon-button tooltip"
+        aria-label="Export current readings as CSV"
+        data-tooltip="Export CSV"
+        [disabled]="!points().length"
+        (click)="export()"
+      >
+        <app-icon name="down" [size]="14" />
+      </button>
+    </div>
+  </div>
+  <div class="chart-toolbar">
+    <div class="metric-tabs" role="group" aria-label="Chart metric">
+      @for (key of keys; track key) {
+        <button
+          [class.active]="metric() === key"
+          [attr.aria-pressed]="metric() === key"
+          (click)="metric.set(key)"
+        >
+          <span class="metric-dot" [style.background]="metrics[key].color"></span
+          >{{ metrics[key].label }}
+        </button>
+      }
+    </div>
+    <label class="time-select"
+      ><span class="sr-only">Chart time range</span
+      ><select
+        aria-label="Chart time range"
+        [value]="range()"
+        (change)="range.set(+$any($event.target).value)"
+      >
+        <option value="60000">Last 1 minute</option>
+        <option value="300000">Last 5 minutes</option>
+        <option value="600000">Last 10 minutes</option>
+      </select></label
+    >
+  </div>
+  <div class="chart-summary">
+    <span class="chart-value">
+      @if (metric() === 'status') {
+        <strong>{{ current()?.status ?? 'No data' }}</strong>
+      } @else {
+        <strong>{{ currentValue() | number: (metric() === 'rpm' ? '1.0-0' : '1.1-1') }}</strong
+        ><span>{{ metrics[metric()].unit }}</span>
+      }</span
+    ><span class="chart-description">{{
+      snapshot()
+        ? 'View paused · simulation continues'
+        : 'Simulated readings · every 2 seconds · UTC'
+    }}</span
+    ><span class="chart-signal" [class.paused]="!!snapshot()"
+      ><span class="dot"></span>{{ snapshot() ? 'PAUSED' : 'LIVE STREAM' }}</span
+    >
+  </div>
+  <app-telemetry-chart
+    [points]="points()"
+    [metric]="metric()"
+    [start]="start()"
+    [end]="end()"
+    [threshold]="fleet.preferences.config().warningTemperature"
+  />
+</section>

@@ -1,0 +1,103 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">EVENT INTELLIGENCE</p>
+    <h1>Alerts & activity<span class="accent">.</span></h1>
+    <p class="subtitle">Trace every action. Acknowledge events after reviewing their context.</p>
+  </div>
+  <button class="button" [disabled]="!unacknowledged()" (click)="fleet.acknowledgeAll()">
+    <app-icon name="check" [size]="15" />Acknowledge all
+  </button>
+</div>
+<div class="filter-bar">
+  <label
+    >Severity<select
+      aria-label="Filter alert severity"
+      [value]="severity()"
+      (change)="severity.set($any($event.target).value)"
+    >
+      <option value="all">All severities</option>
+      <option value="error">Error</option>
+      <option value="warning">Warning</option>
+      <option value="info">Information</option>
+    </select></label
+  ><label
+    >Machine<select
+      aria-label="Filter alerts by machine"
+      [value]="machine()"
+      (change)="machine.set($any($event.target).value)"
+    >
+      <option value="all">All machines</option>
+      @for (m of fleet.machines(); track m.id) {
+        <option [value]="m.id">{{ m.id }} — {{ m.name }}</option>
+      }
+    </select></label
+  ><label
+    >Review status<select
+      aria-label="Filter acknowledgement"
+      [value]="acknowledgement()"
+      (change)="acknowledgement.set($any($event.target).value)"
+    >
+      <option value="all">All events</option>
+      <option value="open">Unacknowledged</option>
+      <option value="reviewed">Acknowledged</option>
+    </select></label
+  >
+</div>
+<section class="panel">
+  <div class="panel-header">
+    <h2>
+      Event log <span class="tag">{{ visible().length }} EVENTS</span>
+    </h2>
+    <span class="log-note">Most recent first · Session only</span>
+  </div>
+  <div class="alert-list">
+    @for (a of visible(); track a.id) {
+      <article class="alert-item" [class.reviewed]="a.acknowledged">
+        <span class="event-icon" [class]="a.severity"
+          ><app-icon [name]="a.severity === 'info' ? 'info' : 'warning'" [size]="18"
+        /></span>
+        <div class="event-body">
+          <div class="event-title">
+            <h3>{{ a.title }}</h3>
+            <span class="event-severity" [class]="a.severity">{{ a.severity }}</span>
+          </div>
+          <p>{{ a.message }}</p>
+          <div class="event-meta">
+            <span>{{ a.machineId }} / {{ a.machineName }}</span
+            ><time>{{ a.timestamp | date: 'dd MMM, HH:mm:ss' : 'UTC' }}</time>
+          </div>
+        </div>
+        @if (a.acknowledged) {
+          <span class="acknowledged"><app-icon name="check" [size]="12" />Acknowledged</span>
+        } @else {
+          <button
+            class="button small"
+            [attr.aria-label]="'Acknowledge ' + a.title + ' on ' + a.machineId"
+            (click)="fleet.acknowledge(a.id)"
+          >
+            Acknowledge
+          </button>
+        }
+      </article>
+    } @empty {
+      <div class="empty-state">
+        <span class="empty-icon"><app-icon name="check" [size]="28" /></span
+        ><strong>No events to review</strong>
+        <p>
+          {{
+            fleet.alerts().length
+              ? 'Try another filter to see more events.'
+              : 'Machine actions and simulated faults will appear here.'
+          }}
+        </p>
+        <a routerLink="/dashboard" class="text-link"
+          >Go to controls <app-icon name="arrow" [size]="13"
+        /></a>
+      </div>
+    }
+  </div>
+</section>
+<p class="events-note">
+  Acknowledging an event marks it as reviewed. It does not clear a machine fault. The log keeps the
+  latest 100 events.
+</p>

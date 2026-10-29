@@ -1,0 +1,74 @@
+<div
+  class="motor-stage"
+  [class.danger]="danger()"
+  [class.is-running]="machine().rpm > 0"
+  [class.is-error]="machine().status === 'ERROR'"
+>
+  <div class="stage-top">
+    <span>LIVE ASSEMBLY VIEW</span
+    ><span class="stage-mode"
+      ><span class="dot"></span>{{ machine().rpm > 0 ? 'MOTOR ENGAGED' : 'MOTOR IDLE' }}</span
+    >
+  </div>
+  <div class="callout callout-thermal">
+    <span class="callout-dot"></span>
+    <div>
+      <small>HOUSING TEMP.</small
+      ><strong>{{ machine().temperature | number: '1.1-1' }} <em>°C</em></strong>
+    </div>
+  </div>
+  <div class="callout callout-speed">
+    <div>
+      <small>SHAFT SPEED</small><strong>{{ machine().rpm | number: '1.0-0' }} <em>RPM</em></strong>
+    </div>
+    <span class="callout-dot"></span>
+  </div>
+  <div class="motor-schematic" role="group" aria-label="Interactive simulated motor assembly">
+    <div class="motor-shadow"></div>
+    <div class="motor-foot foot-left"></div>
+    <div class="motor-foot foot-right"></div>
+    <div class="motor-base"></div>
+    <div class="shaft"><div></div></div>
+    <button class="housing" aria-label="Inspect motor housing" (click)="detail.set('housing')">
+      <span class="housing-top"></span
+      ><span class="fins">
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track i) {
+          <i></i>
+        }</span
+      ><span class="nameplate"
+        ><b>ICC</b> INDUCTION DRIVE <small>3~ 400V · IE4 · {{ machine().id }}</small></span
+      ><span class="housing-bottom"></span>
+    </button>
+    <button class="terminal" aria-label="Inspect terminal box" (click)="detail.set('terminal')">
+      <i class="bolt b1"></i><i class="bolt b2"></i><span class="terminal-line"></span
+      ><span class="terminal-led"></span><i class="bolt b3"></i><i class="bolt b4"></i>
+    </button>
+    <div class="rear-ring"></div>
+    <button class="fan-cover" aria-label="Inspect cooling fan" (click)="detail.set('fan')">
+      <span class="fan-grille"></span
+      ><span
+        class="rotor"
+        [style.animation-duration]="duration()"
+        [style.animation-play-state]="machine().rpm > 0 ? 'running' : 'paused'"
+      >
+        @for (i of [0, 1, 2, 3, 4, 5]; track i) {
+          <i [style.transform]="'rotate(' + i * 60 + 'deg)'"></i>
+        }</span
+      ><span class="hub"></span><i class="cover-screw screw-1"></i
+      ><i class="cover-screw screw-2"></i><i class="cover-screw screw-3"></i
+      ><i class="cover-screw screw-4"></i>
+    </button>
+  </div>
+  <div class="stage-bottom">
+    <span><span class="axis">↗</span> ISOMETRIC / 01</span
+    ><span>SELECT A PART TO INSPECT <app-icon name="info" [size]="11" /></span>
+  </div>
+  @if (detail()) {
+    <div class="part-detail" role="status">
+      <span>{{ details[detail()] }}</span
+      ><button class="icon-button" aria-label="Close part information" (click)="detail.set('')">
+        <app-icon name="close" [size]="13" />
+      </button>
+    </div>
+  }
+</div>
