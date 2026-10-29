@@ -1,73 +1,78 @@
 # Verification report
 
-Executed locally on **29 October 2026**. This is a newly authored frontend implementation; no original source was recovered.
+Release audit completed on **29 October 2026** for [revyalo/industrial-control-center](https://github.com/revyalo/industrial-control-center). This is the newly authored Angular 22 product, not a recovery of lost source or an import of the earlier Angular 20 application.
 
-## Initial local delivery results
+## Public release evidence
 
-| Check                                 | Result                          | Evidence / scope                                                                            |
-| ------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------- |
-| Reference reconstruction gate         | Passed                          | 3 initial tests + production build before feature expansion                                 |
-| Final Vitest suite                    | **20 passed**, 9 files          | Services, seeded engine, transitions, alert filters, controls, motor, charts and CSV        |
-| Sustained simulation                  | Passed                          | 8 simulated hours / 14,400 cycles; histories ≤300, events ≤100, finite values and legal RPM |
-| Production build                      | Passed, no warnings             | Strict TypeScript/templates and all bundle budgets                                          |
-| Playwright on production static files | **11 passed**                   | Chrome against `http://127.0.0.1:4300`, not the development server                          |
-| Automated accessibility               | No detected violations          | axe WCAG 2 A/AA, 2.1 AA and 2.2 AA tags, all 6 routes × dark/light                          |
-| Responsive interactions               | Passed                          | 1440×1100 desktop and 390×844 mobile; mobile dashboard has no page overflow                 |
-| Dialog keyboard behavior              | Passed                          | Initial Cancel focus, Escape dismissal and focus restoration                                |
-| Actual screenshots                    | Captured and visually inspected | `screenshots/dashboard.png`, `screenshots/mobile-settings.png`                              |
-| Remote CI / GitHub Pages              | Prepared, not executed          | Local workflows only; deployment requires a manual trigger                                  |
+The first complete public execution verified application commit [`443b61f`](https://github.com/revyalo/industrial-control-center/commit/443b61f2a7a74adae78a7887accfbb54acba2ae8):
 
-## Browser coverage
+| Check                                        | Executed result                                                                                                                                     | Public evidence                                                                                                                |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Reproducible installation                    | Passed; `npm ci`, Node 24.21.0 and npm 11.19.0; zero reported vulnerabilities at execution                                                          | [Verify Angular frontend](https://github.com/revyalo/industrial-control-center/actions/runs/40861233480/job/123404693622)      |
+| Quality checks                               | Formatting, strict TypeScript and preview syntax passed                                                                                             | Same verification job                                                                                                          |
+| Vitest                                       | **20 tests passed in 9 files**                                                                                                                      | Same verification job                                                                                                          |
+| Production Pages build                       | Passed without budget warnings; base href `/industrial-control-center/`                                                                             | Same verification job                                                                                                          |
+| Playwright + axe on production files         | **11 tests passed** in Linux Chromium, including all six routes in dark/light themes                                                                | Same verification job and `browser-verification` artifact                                                                      |
+| GitHub Pages deployment                      | Successful deployment of the tested artifact                                                                                                        | [Deploy GitHub Pages](https://github.com/revyalo/industrial-control-center/actions/runs/40861233480/job/123405181417)          |
+| Public browser smoke test                    | Passed: loaded the deployed dashboard, stopped/started a machine and checked telemetry without page errors                                          | [Verify the public deployment](https://github.com/revyalo/industrial-control-center/actions/runs/40861233480/job/123405442931) |
+| Independent check against the public website | HTTP 200, correct repository base href, and **all 11 E2E passed again** in local Chrome against the public URL                                      | Release audit; screenshots in this repository                                                                                  |
+| Source control exclusions                    | 77 source/documentation files in the initial commit; no dependencies, build output, reports, PDF, environment files or detected credential patterns | Git tracked-file audit and `.gitignore`                                                                                        |
 
-The final 11 scenarios cover:
+[Complete release execution](https://github.com/revyalo/industrial-control-center/actions/runs/40861233480) · [Latest workflow executions](https://github.com/revyalo/industrial-control-center/actions/workflows/ci.yml)
 
-1. Dashboard load, live values and start/stop.
-2. Real desktop screenshot generation.
-3. Chart freeze/resume, metric changes and CSV download.
-4. Standby-machine start, telemetry changes and stop.
-5. Overheat injection, warning, alert acknowledgement, shutdown and controlled recovery.
-6. Mechanical fault and reset without automatic restart.
-7. History across navigation, machine filtering/selection and configuration validation.
-8. Mobile navigation, light theme, persisted reduced motion and keyboard dialog behavior.
-9. The independently scoped reference exercise's start/stop cadence.
-10. Twelve route/theme accessibility scans.
-11. Keyboard target-speed adjustment, part inspection and confirmed history clearing.
+Browser reports, failure traces when applicable and actual screenshots are retained as workflow artifacts for 14 days. Actions logs remain the public execution evidence; artifact retention is intentionally bounded. Later documentation-only commits pass through the same pipeline and redeploy only after successful checks.
 
-Environment: macOS 13.7.8, Node 24.21.0, Google Chrome 156.0.8078.48. The installed Google Chrome was used via `E2E_CHANNEL=chrome`. Current Playwright Chromium downloads do not support the host's macOS 13. Standard CI is configured to use Playwright Chromium on Linux; that external execution has not been claimed as complete.
+## Live application
 
-## Bundle measurement
+- [Product dashboard](https://revyalo.github.io/industrial-control-center/#/dashboard).
+- [Reconstructed reference exercise](https://revyalo.github.io/industrial-control-center/#/foundation).
 
-Angular's final optimized production build reports:
+The app is served from `/industrial-control-center/` and navigates with URL hashes. Direct feature links and refreshes require no server rewrites. The public smoke job opens the real Pages URL, rather than inferring success only from deployment metadata.
+
+## Local checks before publication
+
+A fresh `npm ci`, quality checks, 20 unit/component tests, the production Pages build and 11 E2E tests passed before the initial public push. Local browser execution used Google Chrome 156.0.8078.48 on macOS 13.7.8 with Node 24.21.0. Hosted CI independently repeated the suite with Chromium on Linux.
+
+The earlier reconstruction gate had already passed 3 unit/component tests and a production build before product expansion. Subsequent milestones are recorded in [MILESTONES.md](MILESTONES.md).
+
+## Test coverage
+
+The 11 browser scenarios cover dashboard load/start/stop, real screenshots, chart pause/resume and metric changes, CSV download, standby-machine operation, overheating and shutdown, alert acknowledgement, controlled recovery, mechanical faults, machine switching, retained histories, invalid settings, mobile navigation, persisted preferences, keyboard dialog behavior, the independent foundation contract, keyboard target-speed adjustment, part inspection, confirmed history clearing, and twelve route/theme axe scans.
+
+The deterministic engine test advances **8 simulated hours / 14,400 cycles** and checks legal RPM, finite readings, at most 300 samples per machine and 100 events. This establishes data-structure bounds, not browser heap-leak certification.
+
+## Measured production bundle
 
 - Initial shell: **302.83 kB raw**, **82.75 kB estimated transfer**.
 - Main JavaScript: 295.29 kB raw; global CSS: 7.54 kB raw.
 - Dashboard feature: 41.57 kB raw, plus shared lazy chunks loaded on demand.
-- Configured initial warning/error budget: 400/500 kB.
-- Component CSS warning/error budget: 8/12 kB.
+- Initial warning/error budgets: 400/500 kB; component CSS: 8/12 kB.
 
-Initial-shell size excludes lazy feature chunks. Estimated transfer assumes server compression; the temporary Python static server used for testing does not provide that compression. These values are build measurements, not public-network performance scores.
+Initial-shell size excludes lazy feature chunks. Angular's estimated transfer assumes server compression; these are build measurements, not public-network benchmark scores.
 
-## Reproduce the production browser run
+## Reproduce
 
 ```sh
 npm ci
+npm run check
 npm test
-npm run build
-python3 -m http.server 4300 --bind 127.0.0.1 --directory dist/industrial-control-center/browser
+npm run build:pages
+npx playwright install chromium
+npm run test:e2e
 ```
 
-In a second terminal on this macOS host:
+On the macOS 13 host, use installed Chrome with `E2E_CHANNEL=chrome npm run test:e2e`. To test the public deployment instead of the built local artifact:
 
 ```sh
-E2E_CHANNEL=chrome E2E_BASE_URL=http://127.0.0.1:4300 npm run test:e2e
+E2E_CHANNEL=chrome E2E_BASE_URL=https://revyalo.github.io/industrial-control-center/ npm run test:e2e
 ```
 
-On a supported machine with Playwright Chromium installed, omit `E2E_CHANNEL`. Without `E2E_BASE_URL`, Playwright starts the Angular development server automatically.
+Omit `E2E_CHANNEL` on a supported machine with Playwright Chromium installed. The default suite starts the local static preview automatically.
 
-## Scope of the initial report
+## Preservation of the earlier project
 
-Manual screen-reader checks, other browser engines, representative field-device performance and remote GitHub execution remain unverified. Automated axe results are a useful gate and do not certify complete WCAG compliance. The 8-hour engine test verifies bounded structures; it is not a browser heap-leak audit. No external publication, remote repository creation or push was performed.
+The earlier [revyalo/machine-dashboard](https://github.com/revyalo/machine-dashboard) repository was archived **only after** the new CI, Pages deployment, public smoke test and independent public E2E suite passed. It remains public and retains its `master` branch and commit [`be6277c`](https://github.com/revyalo/machine-dashboard/commit/be6277c9fc825043df56496703fdf623a8a7169c). The SHA was checked before and after archiving. No files or commits in that repository were changed, and no force push or repository deletion was performed.
 
-## Public release verification
+## Remaining scope
 
-The pre-publication audit for `revyalo/industrial-control-center` passed on 29 October 2026: reproducible `npm ci` installation (zero reported vulnerabilities), formatting/TypeScript checks, 20 unit/component tests, production Pages compilation and 11 E2E tests at `/industrial-control-center/`. No application feature code was replaced by another project. The historical local results above are not presented as a completed GitHub Actions run. Current run and deployment evidence will be recorded after the checks execute. The source is the newly authored Angular 22 implementation only; the previous repository is not reused.
+No CI or Pages failure remains from the verified release. Firefox/Safari coverage, manual screen-reader checks, a complete manual WCAG audit and representative field-device performance measurements remain unperformed. Automated axe checks are a useful gate, not a certification of full WCAG compliance. Simulation values are illustrative and are not physical sensor telemetry.

@@ -70,7 +70,7 @@ npm run build:pages
 E2E_CHANNEL=chrome npm run test:e2e
 ```
 
-The tests use a seeded engine, virtual timers where appropriate and an installed Playwright clock in browser scenarios. They verify startup, telemetry, stop, overheating, alerts, mechanical faults, recovery, machine switching, history lifetime, CSV, configuration validation, mobile navigation, theme persistence and keyboard dialog behavior. **Executed:** 20 unit/component tests and 11 E2E tests passed, with the final browser suite running against the optimized static build. See [verification results](docs/VERIFICATION.md) for the executed checks and limitations.
+The tests use a seeded engine, virtual timers where appropriate and an installed Playwright clock in browser scenarios. They verify startup, telemetry, stop, overheating, alerts, mechanical faults, recovery, machine switching, history lifetime, CSV, configuration validation, mobile navigation, theme persistence and keyboard dialog behavior. **Publicly verified:** [20 unit/component tests and 11 E2E tests passed in GitHub Actions](https://github.com/revyalo/industrial-control-center/actions/runs/40861233480), followed by successful Pages deployment and a real-browser check of the public application. All 11 E2E also passed independently against the public URL. See [verification results](docs/VERIFICATION.md) for the executed checks and limitations.
 
 ![Actual mobile settings in the light theme](docs/screenshots/mobile-settings.png)
 
@@ -124,7 +124,7 @@ Official GitHub Actions are pinned to verified commit SHAs. Deployment permissio
 
 ## Portfolio evolution
 
-**Industrial Control Center** is the principal Angular 22 project, focused on simulation, observability and frontend engineering. [**NEXUS Machine Dashboard**](https://github.com/revyalo/machine-dashboard) is the earlier Angular 20 project, retained separately as evidence of progression. Its commits and source are not imported into this repository. Any later archiving of that repository preserves its history.
+**Industrial Control Center** is the principal Angular 22 project, focused on simulation, observability and frontend engineering. [**NEXUS Machine Dashboard**](https://github.com/revyalo/machine-dashboard) is the earlier Angular 20 project, retained separately as evidence of progression. Its commits and source are not imported into this repository. After the new project was deployed and verified, the earlier repository was archived as a public, read-only record. Its code, default branch and commit history were preserved.
 
 ## Limitations
 
